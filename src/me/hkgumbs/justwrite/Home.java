@@ -1,0 +1,378 @@
+package me.hkgumbs.justwrite;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.sql.Timestamp;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+
+import com.squareup.seismic.ShakeDetector;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.support.v4.app.NotificationCompat;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.hardware.SensorManager;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class Home extends Activity implements ShakeDetector.Listener {
+
+	private SharedPreferences sp;
+	private Boolean dark;
+	private ShakeDetector sd;
+
+	private FrameLayout fl;
+	private ScrollView sv;
+	private EditText content;
+
+	private AlertDialog ad;
+	private LayoutInflater in;
+
+	private final static int NOTIFICATION_ID = 88;
+	private final static int MIN_FONT_SIZE = 12;
+	private static String[] commands;
+	private static int[] drawables;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.activity_home);
+
+		// BOOTSTRAP
+		sp = getPreferences(Context.MODE_PRIVATE);
+		fl = (FrameLayout) findViewById(R.id.root);
+		sv = (ScrollView) findViewById(R.id.scroll);
+		content = (EditText) findViewById(R.id.content);
+		in = getLayoutInflater();
+		commands = getResources().getStringArray(R.array.commands);
+		drawables = new int[] { R.drawable.camera_icon,
+				R.drawable.brightness_icon, R.drawable.view_icon,
+				R.drawable.like_icon };
+		ad = initMenu();
+
+		// INIT THEME
+		dark = sp.getBoolean("DARK_THEME", false);
+		setTheme(false);
+
+		// INIT CONTENT
+		Typeface typeFace = Typeface.createFromAsset(getAssets(),
+				"fonts/RobotoSlab-Thin.ttf");
+		content.setTypeface(typeFace);
+		content.setText(sp.getString("CONTENT", ""));
+		content.setTextSize(TypedValue.COMPLEX_UNIT_SP,
+				sp.getFloat("FONT_SIZE", 50));
+		content.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void afterTextChanged(Editable arg0) {
+				sp.edit().putString("CONTENT", content.getText().toString())
+						.apply();
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+			}
+		});
+
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+
+		// INIT SHAKEDETECTOR
+		sd = new ShakeDetector(this);
+		sd.start((SensorManager) getSystemService(SENSOR_SERVICE));
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		sd.stop();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu m) {
+		hearShake();
+		return false;
+	}
+
+	public void hearShake() {
+
+		if (!ad.isShowing()) {
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(content.getWindowToken(), 0);
+			content.setCursorVisible(false);
+
+			ad.show();
+		}
+	}
+
+	private void showBar() {
+
+		View layout = in.inflate(R.layout.font,
+				(ViewGroup) findViewById(R.layout.activity_home));
+		new AlertDialog.Builder(this).setView(layout)
+				.setPositiveButton("OK", new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						sp.edit()
+								.putFloat("FONT_SIZE",
+										toSP(content.getTextSize())).apply();
+					}
+
+				}).setNegativeButton("Cancel", new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						content.setTextSize(TypedValue.COMPLEX_UNIT_SP,
+								sp.getFloat("FONT_SIZE", 50));
+					}
+
+				}).create().show();
+
+		SeekBar sb = (SeekBar) layout.findViewById(R.id.bar);
+		sb.setProgress(toSP(content.getTextSize()) - MIN_FONT_SIZE);
+		sb.setMax(100 - MIN_FONT_SIZE);
+		sb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				content.setTextSize(TypedValue.COMPLEX_UNIT_SP, progress
+						+ MIN_FONT_SIZE);
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+
+		});
+
+	}
+
+	private void setTheme(Boolean toggle) {
+
+		if (toggle) // if not initializing
+			dark = !dark; // toggle value
+
+		if (dark) {
+			content.setTextColor(getResources().getColor(android.R.color.white));
+			sv.setBackgroundColor(getResources()
+					.getColor(android.R.color.black));
+			fl.setBackgroundColor(getResources()
+					.getColor(android.R.color.black));
+			sp.edit().putBoolean("DARK_THEME", true).apply();
+		} else {
+			content.setTextColor(getResources().getColor(android.R.color.black));
+			sv.setBackgroundColor(getResources()
+					.getColor(android.R.color.white));
+			fl.setBackgroundColor(getResources()
+					.getColor(android.R.color.white));
+			sp.edit().putBoolean("DARK_THEME", false).apply();
+		}
+	}
+
+	private void capture() {
+
+		new AsyncTask<Void, Void, Boolean>() {
+			String name;
+			String root;
+			File file;
+
+			@Override
+			protected Boolean doInBackground(Void... arg0) {
+				// CREATE BITMAP FROM SCREEN CAPTURE
+				Bitmap bitmap;
+				fl.setDrawingCacheEnabled(true);
+				bitmap = Bitmap.createBitmap(fl.getDrawingCache());
+				fl.setDrawingCacheEnabled(false);
+
+				// IMAGE NAMING
+				name = new Timestamp(new java.util.Date().getTime()).toString()
+						+ ".jpg";
+				root = Environment.getExternalStorageDirectory().toString()
+						+ "/Just Write/";
+				File dir = new File(root);
+				dir.mkdirs();
+				file = new File(dir, name);
+				if (file.exists())
+					file.delete();
+
+				// SAVE TO DEVICE
+				try {
+					FileOutputStream out = new FileOutputStream(file);
+					bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+					out.flush();
+					out.close();
+
+				} catch (Exception e) {
+					e.printStackTrace();
+					return false;
+				}
+
+				return true;
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+
+				// ERROR CASE
+				if (!result) {
+					Toast.makeText(Home.this, "Save failed", Toast.LENGTH_SHORT)
+							.show();
+					return;
+				}
+
+				// REFRESH GALLERY
+				ContentValues values = new ContentValues();
+				values.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
+				values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+				getContentResolver().insert(
+						MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+
+				// CREATE NOTIFICATION
+				Intent i = new Intent();
+				i.setAction(Intent.ACTION_VIEW);
+				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				i.setDataAndType(Uri.parse("file://" + root + name), "image/*");
+
+				NotificationCompat.Builder builder = new NotificationCompat.Builder(
+						Home.this)
+						.setContentTitle(getString(R.string.notification_title))
+						.setContentText(getString(R.string.notification_desc))
+						.setSmallIcon(R.drawable.notification_icon)
+						.setAutoCancel(true)
+						.setTicker(getString(R.string.notification_title))
+						.setLargeIcon(
+								BitmapFactory.decodeResource(getResources(),
+										R.drawable.camera_icon))
+						.setContentIntent(
+								PendingIntent.getActivity(Home.this, 0, i,
+										PendingIntent.FLAG_ONE_SHOT));
+
+				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+				nm.cancel(NOTIFICATION_ID); // remove old notification
+				nm.notify(NOTIFICATION_ID, builder.build());
+
+			}
+
+		}.execute();
+
+	}
+
+	private int toSP(Float px) {
+		float sd = getResources().getDisplayMetrics().scaledDensity;
+		return (int) (px / sd);
+	}
+
+	private AlertDialog initMenu() {
+
+		ListView lv = (ListView) in.inflate(R.layout.options, null);
+
+		ArrayAdapter<String> aa = new ArrayAdapter<String>(this,
+				R.layout.options_item, commands) {
+
+			@Override
+			public View getView(int position, View v, ViewGroup root) {
+
+				// TextView item = (TextView) v;
+				if (v == null)
+					v = in.inflate(R.layout.options_item, null);
+
+				Drawable d = getResources().getDrawable(drawables[position]);
+				d.setBounds(0, 0, d.getIntrinsicWidth() / 2,
+						d.getIntrinsicHeight() / 2);
+
+				((TextView) v).setText(commands[position]);
+				((TextView) v).setCompoundDrawables(d, null, null, null);
+
+				return v;
+			}
+
+		};
+		lv.setAdapter(aa);
+
+		lv.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1,
+					int position, long arg3) {
+
+				ad.dismiss();
+
+				switch (position) {
+				case 0:
+					capture();
+					break;
+				case 1:
+					setTheme(true);
+					break;
+				case 2:
+					showBar();
+					break;
+				}
+
+			}
+		});
+
+		AlertDialog alert = new AlertDialog.Builder(Home.this).setView(lv)
+				.create();
+		alert.setOnDismissListener(new OnDismissListener() {
+
+			@Override
+			public void onDismiss(DialogInterface arg0) {
+				content.setCursorVisible(true);
+			}
+
+		});
+
+		return alert;
+	}
+}

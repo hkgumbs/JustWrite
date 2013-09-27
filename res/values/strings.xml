@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Just Write</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="hint">Shake for menu!</string>
+    <string name="capture">Capture as image</string>
+    <string name="color">Toggle theme</string>
+    <string name="font">Change font size</string>
+    <string name="notification_title">Note captured!</string>
+    <string name="notification_desc">Touch to view your image.</string>
+    <string name="icon">icon</string>
+
+    <string-array name="commands">
+        <item>Capture as image</item>
+        <item>Toggle theme</item>
+        <item>Change font size</item>
+    </string-array>
+
+</resources>
