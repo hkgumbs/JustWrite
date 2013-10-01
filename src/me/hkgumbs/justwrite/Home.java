@@ -7,8 +7,8 @@ import java.sql.Timestamp;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -134,12 +134,16 @@ public class Home extends Activity implements ShakeDetector.Listener {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu m) {
-		hearShake();
-		return false;
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) { // HARDWARE MENU BUTTON
+			hearShake();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	public void hearShake() {
+		// shake detector implemented in square-seismic-1.0.0.jar
 
 		if (!ad.isShowing()) {
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -150,6 +154,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 		}
 	}
 
+	// EDIT FONT SIZE
 	private void showBar() {
 
 		View layout = in.inflate(R.layout.font,
@@ -198,6 +203,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 	}
 
+	// TOGGLE THEME
 	private void setTheme(Boolean toggle) {
 
 		if (toggle) // if not initializing
@@ -220,6 +226,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 		}
 	}
 
+	// SAVE AS IMAGE
 	private void capture() {
 
 		new AsyncTask<Void, Void, Boolean>() {
