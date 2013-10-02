@@ -24,7 +24,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -148,8 +147,6 @@ public class Home extends Activity implements ShakeDetector.Listener {
 		if (!ad.isShowing()) {
 			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 			imm.hideSoftInputFromWindow(content.getWindowToken(), 0);
-			content.setCursorVisible(false);
-
 			ad.show();
 		}
 	}
@@ -237,10 +234,11 @@ public class Home extends Activity implements ShakeDetector.Listener {
 			@Override
 			protected Boolean doInBackground(Void... arg0) {
 				// CREATE BITMAP FROM SCREEN CAPTURE
-				Bitmap bitmap;
+				content.setCursorVisible(false);
 				fl.setDrawingCacheEnabled(true);
-				bitmap = Bitmap.createBitmap(fl.getDrawingCache());
+				Bitmap bitmap = Bitmap.createBitmap(fl.getDrawingCache());
 				fl.setDrawingCacheEnabled(false);
+				content.setCursorVisible(true);
 
 				// IMAGE NAMING
 				name = new Timestamp(new java.util.Date().getTime()).toString()
@@ -371,14 +369,6 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 		AlertDialog alert = new AlertDialog.Builder(Home.this).setView(lv)
 				.create();
-		alert.setOnDismissListener(new OnDismissListener() {
-
-			@Override
-			public void onDismiss(DialogInterface arg0) {
-				content.setCursorVisible(true);
-			}
-
-		});
 
 		return alert;
 	}
