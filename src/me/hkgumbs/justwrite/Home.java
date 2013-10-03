@@ -24,6 +24,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -145,8 +147,6 @@ public class Home extends Activity implements ShakeDetector.Listener {
 		// shake detector implemented in square-seismic-1.0.0.jar
 
 		if (!ad.isShowing()) {
-			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(content.getWindowToken(), 0);
 			ad.show();
 		}
 	}
@@ -177,8 +177,8 @@ public class Home extends Activity implements ShakeDetector.Listener {
 				}).create().show();
 
 		SeekBar sb = (SeekBar) layout.findViewById(R.id.bar);
-		sb.setProgress(toSP(content.getTextSize()) - MIN_FONT_SIZE);
 		sb.setMax(100 - MIN_FONT_SIZE);
+		sb.setProgress(toSP(content.getTextSize()) - MIN_FONT_SIZE);
 		sb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
@@ -234,11 +234,9 @@ public class Home extends Activity implements ShakeDetector.Listener {
 			@Override
 			protected Boolean doInBackground(Void... arg0) {
 				// CREATE BITMAP FROM SCREEN CAPTURE
-				content.setCursorVisible(false);
 				fl.setDrawingCacheEnabled(true);
 				Bitmap bitmap = Bitmap.createBitmap(fl.getDrawingCache());
 				fl.setDrawingCacheEnabled(false);
-				content.setCursorVisible(true);
 
 				// IMAGE NAMING
 				name = new Timestamp(new java.util.Date().getTime()).toString()
@@ -328,7 +326,6 @@ public class Home extends Activity implements ShakeDetector.Listener {
 			@Override
 			public View getView(int position, View v, ViewGroup root) {
 
-				// TextView item = (TextView) v;
 				if (v == null)
 					v = in.inflate(R.layout.options_item, null);
 
@@ -369,6 +366,27 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 		AlertDialog alert = new AlertDialog.Builder(Home.this).setView(lv)
 				.create();
+
+		alert.setOnShowListener(new OnShowListener() {
+
+			@Override
+			public void onShow(DialogInterface dialog) {
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(content.getWindowToken(), 0);
+				content.setCursorVisible(false);
+
+			}
+
+		});
+
+		alert.setOnDismissListener(new OnDismissListener() {
+
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				content.setCursorVisible(true);
+			}
+
+		});
 
 		return alert;
 	}

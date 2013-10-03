@@ -6,8 +6,8 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="hint">Shake for menu!</string>
     <string name="capture">Capture as image</string>
-    <string name="color">Toggle theme</string>
-    <string name="font">Change font size</string>
+    <string name="color">Invert colors</string>
+    <string name="font">Resize font</string>
     <string name="notification_title">Note captured!</string>
     <string name="notification_desc">Touch to view your image.</string>
     <string name="icon">icon</string>
