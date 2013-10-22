@@ -24,7 +24,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -226,17 +225,20 @@ public class Home extends Activity implements ShakeDetector.Listener {
 	// SAVE AS IMAGE
 	private void capture() {
 
-		new AsyncTask<Void, Void, Boolean>() {
+		// CREATE BITMAP FROM SCREEN CAPTURE
+		content.setCursorVisible(false);
+		fl.setDrawingCacheEnabled(true);
+		Bitmap bitmap = Bitmap.createBitmap(fl.getDrawingCache());
+		fl.setDrawingCacheEnabled(false);
+		content.setCursorVisible(true);
+
+		new AsyncTask<Bitmap, Void, Boolean>() {
 			String name;
 			String root;
 			File file;
 
 			@Override
-			protected Boolean doInBackground(Void... arg0) {
-				// CREATE BITMAP FROM SCREEN CAPTURE
-				fl.setDrawingCacheEnabled(true);
-				Bitmap bitmap = Bitmap.createBitmap(fl.getDrawingCache());
-				fl.setDrawingCacheEnabled(false);
+			protected Boolean doInBackground(Bitmap... b) {
 
 				// IMAGE NAMING
 				name = new Timestamp(new java.util.Date().getTime()).toString()
@@ -252,7 +254,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 				// SAVE TO DEVICE
 				try {
 					FileOutputStream out = new FileOutputStream(file);
-					bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+					b[0].compress(Bitmap.CompressFormat.JPEG, 90, out);
 					out.flush();
 					out.close();
 
@@ -307,7 +309,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 			}
 
-		}.execute();
+		}.execute(bitmap);
 
 	}
 
@@ -373,17 +375,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 			public void onShow(DialogInterface dialog) {
 				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(content.getWindowToken(), 0);
-				content.setCursorVisible(false);
 
-			}
-
-		});
-
-		alert.setOnDismissListener(new OnDismissListener() {
-
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				content.setCursorVisible(true);
 			}
 
 		});
