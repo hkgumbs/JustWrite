@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="me.hkgumbs.justwrite"
-    android:versionCode="4"
-    android:versionName="1.03" >
+    android:versionCode="5"
+    android:versionName="1.1" >
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -20,7 +20,7 @@
             android:configChanges="fontScale"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme"
-            android:windowSoftInputMode="stateHidden" >
+            android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
