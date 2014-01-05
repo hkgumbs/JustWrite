@@ -1,4 +1,4 @@
-package me.hkgumbs.justwrite;
+package me.hkgumbs.just_write;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.hkgumbs.justwrite"
+    package="me.hkgumbs.just_write"
     android:versionCode="5"
     android:versionName="1.1" >
 
@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="me.hkgumbs.justwrite.Home"
+            android:name="me.hkgumbs.just_write.Home"
             android:configChanges="fontScale"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme"
