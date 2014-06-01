@@ -1,0 +1,33 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff" >
+
+    <ScrollView
+        android:id="@+id/containter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="#ffffff" >
+
+        <EditText
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:gravity="left"
+            android:hint="@string/hint"
+            android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
+            android:padding="10dp"
+            android:scrollHorizontally="false"
+            android:textColor="#000000"
+            android:textCursorDrawable="@null"
+            android:textSize="50sp" >
+
+            <requestFocus />
+        </EditText>
+    </ScrollView>
+
+</FrameLayout>

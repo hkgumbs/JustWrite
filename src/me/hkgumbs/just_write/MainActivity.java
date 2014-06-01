@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.sql.Timestamp;
 
+import me.hkgumbs.just_write.ContentFragment.ScreenSlidePagerAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -15,11 +16,12 @@ import android.view.Window;
 
 import com.squareup.seismic.ShakeDetector;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.view.ViewPager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -50,10 +52,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Home extends Activity implements ShakeDetector.Listener {
+public class MainActivity extends FragmentActivity implements ShakeDetector.Listener {
 
 	private SharedPreferences sp;
-	private Boolean dark;
 	private ShakeDetector sd;
 
 	private FrameLayout fl;
@@ -62,6 +63,9 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 	private AlertDialog ad;
 	private LayoutInflater in;
+
+	ScreenSlidePagerAdapter pagerAdapter;
+	ViewPager pager;
 
 	private final static int NOTIFICATION_ID = 88;
 	private final static int MIN_FONT_SIZE = 12;
@@ -74,47 +78,9 @@ public class Home extends Activity implements ShakeDetector.Listener {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_home);
 
-		// BOOTSTRAP
-		sp = getPreferences(Context.MODE_PRIVATE);
-		fl = (FrameLayout) findViewById(R.id.root);
-		sv = (ScrollView) findViewById(R.id.scroll);
-		content = (EditText) findViewById(R.id.content);
-		in = getLayoutInflater();
-		commands = getResources().getStringArray(R.array.commands);
-		drawables = new int[] { R.drawable.camera_icon,
-				R.drawable.brightness_icon, R.drawable.view_icon,
-				R.drawable.like_icon };
-		ad = initMenu();
-
-		// INIT THEME
-		dark = sp.getBoolean("DARK_THEME", false);
-		setTheme(false);
-
-		// INIT CONTENT
-		Typeface typeFace = Typeface.createFromAsset(getAssets(),
-				"fonts/RobotoSlab-Thin.ttf");
-		content.setTypeface(typeFace);
-		content.setText(sp.getString("CONTENT", ""));
-		content.setTextSize(TypedValue.COMPLEX_UNIT_SP,
-				sp.getFloat("FONT_SIZE", 50));
-		content.addTextChangedListener(new TextWatcher() {
-
-			@Override
-			public void afterTextChanged(Editable arg0) {
-				sp.edit().putString("CONTENT", content.getText().toString())
-						.apply();
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-			}
-		});
+		pagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+		pager = (ViewPager) findViewById(R.id.pager);
+		pager.setAdapter(pagerAdapter);
 
 	}
 
@@ -138,8 +104,8 @@ public class Home extends Activity implements ShakeDetector.Listener {
 		if (keyCode == KeyEvent.KEYCODE_MENU) { // HARDWARE MENU BUTTON
 			hearShake();
 			return true;
-		}
-		return super.onKeyDown(keyCode, event);
+		} else
+			return super.onKeyDown(keyCode, event);
 	}
 
 	public void hearShake() {
@@ -153,38 +119,31 @@ public class Home extends Activity implements ShakeDetector.Listener {
 	// EDIT FONT SIZE
 	private void showBar() {
 
-		View layout = in.inflate(R.layout.font,
-				(ViewGroup) findViewById(R.layout.activity_home));
-		new AlertDialog.Builder(this).setView(layout)
-				.setPositiveButton("OK", new OnClickListener() {
+		View layout = in.inflate(R.layout.dialog_font, (ViewGroup) findViewById(R.layout.activity_home));
+		new AlertDialog.Builder(this).setView(layout).setPositiveButton("OK", new OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						sp.edit()
-								.putFloat("FONT_SIZE",
-										toSP(content.getTextSize())).apply();
-					}
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				sp.edit().putFloat("FONT_SIZE", toSP(content.getTextSize())).apply();
+			}
 
-				}).setNegativeButton("Cancel", new OnClickListener() {
+		}).setNegativeButton("Cancel", new OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface arg0, int arg1) {
-						content.setTextSize(TypedValue.COMPLEX_UNIT_SP,
-								sp.getFloat("FONT_SIZE", 50));
-					}
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				content.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp.getFloat("FONT_SIZE", 50));
+			}
 
-				}).create().show();
+		}).create().show();
 
-		SeekBar sb = (SeekBar) layout.findViewById(R.id.bar);
+		SeekBar sb = (SeekBar) layout.findViewById(R.id.font);
 		sb.setMax(100 - MIN_FONT_SIZE);
 		sb.setProgress(toSP(content.getTextSize()) - MIN_FONT_SIZE);
 		sb.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
 			@Override
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				content.setTextSize(TypedValue.COMPLEX_UNIT_SP, progress
-						+ MIN_FONT_SIZE);
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				content.setTextSize(TypedValue.COMPLEX_UNIT_SP, progress + MIN_FONT_SIZE);
 			}
 
 			@Override
@@ -197,29 +156,6 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 		});
 
-	}
-
-	// TOGGLE THEME
-	private void setTheme(Boolean toggle) {
-
-		if (toggle) // if not initializing
-			dark = !dark; // toggle value
-
-		if (dark) {
-			content.setTextColor(getResources().getColor(android.R.color.white));
-			sv.setBackgroundColor(getResources()
-					.getColor(android.R.color.black));
-			fl.setBackgroundColor(getResources()
-					.getColor(android.R.color.black));
-			sp.edit().putBoolean("DARK_THEME", true).apply();
-		} else {
-			content.setTextColor(getResources().getColor(android.R.color.black));
-			sv.setBackgroundColor(getResources()
-					.getColor(android.R.color.white));
-			fl.setBackgroundColor(getResources()
-					.getColor(android.R.color.white));
-			sp.edit().putBoolean("DARK_THEME", false).apply();
-		}
 	}
 
 	// SAVE AS IMAGE
@@ -241,10 +177,8 @@ public class Home extends Activity implements ShakeDetector.Listener {
 			protected Boolean doInBackground(Bitmap... b) {
 
 				// IMAGE NAMING
-				name = new Timestamp(new java.util.Date().getTime()).toString()
-						+ ".jpg";
-				root = Environment.getExternalStorageDirectory().toString()
-						+ "/Just Write/";
+				name = new Timestamp(new java.util.Date().getTime()).toString() + ".jpg";
+				root = Environment.getExternalStorageDirectory().toString() + "/Just Write/";
 				File dir = new File(root);
 				dir.mkdirs();
 				file = new File(dir, name);
@@ -271,8 +205,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 				// ERROR CASE
 				if (!result) {
-					Toast.makeText(Home.this, "Save failed", Toast.LENGTH_SHORT)
-							.show();
+					Toast.makeText(MainActivity.this, "Save failed", Toast.LENGTH_SHORT).show();
 					return;
 				}
 
@@ -280,8 +213,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 				ContentValues values = new ContentValues();
 				values.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
 				values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-				getContentResolver().insert(
-						MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+				getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
 				// CREATE NOTIFICATION
 				Intent i = new Intent();
@@ -289,19 +221,15 @@ public class Home extends Activity implements ShakeDetector.Listener {
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.setDataAndType(Uri.parse("file://" + root + name), "image/*");
 
-				NotificationCompat.Builder builder = new NotificationCompat.Builder(
-						Home.this)
+				NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this)
 						.setContentTitle(getString(R.string.notification_title))
 						.setContentText(getString(R.string.notification_desc))
 						.setSmallIcon(R.drawable.notification_icon)
 						.setAutoCancel(true)
 						.setTicker(getString(R.string.notification_title))
-						.setLargeIcon(
-								BitmapFactory.decodeResource(getResources(),
-										R.drawable.camera_icon))
+						.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.camera_icon))
 						.setContentIntent(
-								PendingIntent.getActivity(Home.this, 0, i,
-										PendingIntent.FLAG_ONE_SHOT));
+								PendingIntent.getActivity(MainActivity.this, 0, i, PendingIntent.FLAG_ONE_SHOT));
 
 				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				nm.cancel(NOTIFICATION_ID); // remove old notification
@@ -320,20 +248,18 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 	private AlertDialog initMenu() {
 
-		ListView lv = (ListView) in.inflate(R.layout.options, null);
+		ListView lv = (ListView) in.inflate(R.layout.dialog_options, null);
 
-		ArrayAdapter<String> aa = new ArrayAdapter<String>(this,
-				R.layout.options_item, commands) {
+		ArrayAdapter<String> aa = new ArrayAdapter<String>(this, R.layout.item_options, commands) {
 
 			@Override
 			public View getView(int position, View v, ViewGroup root) {
 
 				if (v == null)
-					v = in.inflate(R.layout.options_item, null);
+					v = in.inflate(R.layout.item_options, null);
 
 				Drawable d = getResources().getDrawable(drawables[position]);
-				d.setBounds(0, 0, d.getIntrinsicWidth() / 2,
-						d.getIntrinsicHeight() / 2);
+				d.setBounds(0, 0, d.getIntrinsicWidth() / 2, d.getIntrinsicHeight() / 2);
 
 				((TextView) v).setText(commands[position]);
 				((TextView) v).setCompoundDrawables(d, null, null, null);
@@ -346,8 +272,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1,
-					int position, long arg3) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 
 				ad.dismiss();
 
@@ -356,7 +281,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 					capture();
 					break;
 				case 1:
-					setTheme(true);
+//					setTheme(true);
 					break;
 				case 2:
 					showBar();
@@ -366,8 +291,7 @@ public class Home extends Activity implements ShakeDetector.Listener {
 			}
 		});
 
-		AlertDialog alert = new AlertDialog.Builder(Home.this).setView(lv)
-				.create();
+		AlertDialog alert = new AlertDialog.Builder(MainActivity.this).setView(lv).create();
 
 		alert.setOnShowListener(new OnShowListener() {
 
