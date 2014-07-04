@@ -15,7 +15,16 @@
     <string-array name="commands">
         <item>Capture as image</item>
         <item>Toggle theme</item>
-        <item>Change font size</item>
+        <item>Change font</item>
+        <item>Add new page</item>
+        <item>Delete this page</item>
+    </string-array>
+    <string-array name="icons">
+        <item>&#xf1c5;</item>
+        <item>&#xf042;</item>
+        <item>&#xf031;</item>
+        <item>&#xf196;</item>
+        <item>&#xf014;</item>
     </string-array>
 
 </resources>
