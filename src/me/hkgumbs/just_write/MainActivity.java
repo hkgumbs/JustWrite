@@ -38,7 +38,7 @@ public class MainActivity extends FragmentActivity implements
 	pager = (ViewPager) findViewById(R.id.pager);
 	pager.setAdapter(pagerAdapter);
 
-	handler = new ActionHandler(this);
+	handler = new ActionHandler(this, pager);
 	menu = new MyMenu(this, handler);
     }
 
@@ -88,7 +88,13 @@ public class MainActivity extends FragmentActivity implements
 	public ContentFragment getItem(int position) {
 	    ContentFragment fragment = new ContentFragment();
 	    Bundle arg = new Bundle();
-	    arg.putInt("position", position);
+	    String value;
+	    if (position == 0)
+		// first element gets empty argument for legacy reasons
+		value = "";
+	    else
+		value = Integer.toString(position);
+	    arg.putString("position", value);
 	    fragment.setArguments(arg);
 	    return fragment;
 	}

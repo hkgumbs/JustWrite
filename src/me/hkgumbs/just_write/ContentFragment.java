@@ -15,9 +15,6 @@ import android.widget.EditText;
 
 public class ContentFragment extends Fragment {
 
-    private SharedPreferences sp;
-    private EditText content;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	    Bundle savedInstanceState) {
@@ -25,18 +22,21 @@ public class ContentFragment extends Fragment {
 
 	final View frame = inflater.inflate(R.layout.fragment_content,
 		container, false);
+	final SharedPreferences sp = getActivity().getPreferences(
+		Context.MODE_PRIVATE);
+	final EditText content = (EditText) frame.findViewById(R.id.text);
 
-	// BOOTSTRAP
-	sp = getActivity().getPreferences(Context.MODE_PRIVATE);
-	content = (EditText) frame.findViewById(R.id.text);
+	// setup look from saved content
+	String position = getArguments().getString("position");
+	String text = sp.getString("CONTENT" + position, "");
+	float size = sp.getFloat("FONT_SIZE" + position, 50);
+	String font = sp.getString("FONT" + position, C.FONT_SLAB);
 
-	// INIT CONTENT
-	Typeface typeFace = Typeface.createFromAsset(getActivity().getAssets(),
-		sp.getString("FONT", "fonts/RobotoSlab-Thin.ttf"));
-	content.setTypeface(typeFace);
-	content.setText(sp.getString("CONTENT", ""));
-	content.setTextSize(TypedValue.COMPLEX_UNIT_SP,
-		sp.getFloat("FONT_SIZE", 50));
+	content.setText(text);
+	content.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+	content.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),
+		font));
+
 	content.addTextChangedListener(new TextWatcher() {
 
 	    @Override
@@ -58,5 +58,4 @@ public class ContentFragment extends Fragment {
 
 	return frame;
     }
-
 }
