@@ -104,6 +104,11 @@ public class MainActivity extends FragmentActivity implements
 	    return sp.getInt("pages", 1);
 	}
 
+	@Override
+	public int getItemPosition(Object object) {
+	    return POSITION_NONE;
+	}
+
     }
 
 }
