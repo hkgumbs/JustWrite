@@ -58,6 +58,9 @@ public class MyMenu implements OnItemClickListener {
 	this.pager = pager;
     }
 
+    /*
+     * open menu unless not already showing
+     */
     public boolean open(int position, View root) {
 	if (!alert.isShowing()) {
 	    alert.show();

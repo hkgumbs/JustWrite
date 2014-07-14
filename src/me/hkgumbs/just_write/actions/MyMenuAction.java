@@ -5,6 +5,9 @@ import android.support.v4.view.ViewPager;
 
 public interface MyMenuAction {
 
+    /*
+     * Execute the command implemented by the interface
+     */
     public void execute(final Activity activity, final ViewPager pager);
-    
+
 }

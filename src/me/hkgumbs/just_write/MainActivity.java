@@ -56,7 +56,8 @@ public class MainActivity extends FragmentActivity implements
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-	if (keyCode == KeyEvent.KEYCODE_MENU) { // HARDWARE MENU BUTTON
+	if (keyCode == KeyEvent.KEYCODE_MENU) {
+	    // hardware menu button
 	    hearShake();
 	    return true;
 	} else
@@ -103,7 +104,9 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public int getItemPosition(Object object) {
-	    return POSITION_NONE;
+	    if (object instanceof ContentFragment)
+		((ContentFragment) object).update();
+	    return super.getItemPosition(object);
 	}
 
     }

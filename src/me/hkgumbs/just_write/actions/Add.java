@@ -12,6 +12,8 @@ public class Add implements MyMenuAction {
 	SharedPreferences sp = activity.getPreferences(Context.MODE_PRIVATE);
 	int pages = sp.getInt("pages", 1) + 1;
 	sp.edit().putInt("pages", pages).apply();
+
+	// redraw
 	pager.getAdapter().notifyDataSetChanged();
 	int count = pager.getAdapter().getCount();
 	pager.setCurrentItem(count - 1);

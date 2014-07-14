@@ -15,42 +15,24 @@ import android.widget.EditText;
 
 public class ContentFragment extends Fragment {
 
+    View frame;
+    View scroll;
+    EditText content;
+
+    SharedPreferences sp;
+    String position;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	    Bundle savedInstanceState) {
 	super.onCreateView(inflater, container, savedInstanceState);
 
-	final View frame = inflater.inflate(R.layout.fragment_content,
-		container, false);
-	final SharedPreferences sp = getActivity().getPreferences(
-		Context.MODE_PRIVATE);
-	final EditText content = (EditText) frame.findViewById(R.id.text);
-	final View scroll = frame.findViewById(R.id.scroll);
-
-	// setup look from saved content
-	final String position = getArguments().getString("position");
-	String text = sp.getString("CONTENT" + position, "");
-	float size = sp.getFloat("FONT_SIZE" + position, 50);
-	String font = sp.getString("FONT" + position, C.FONT_SLAB);
-	boolean dark = sp.getBoolean("DARK_THEME" + position, false);
-
-	content.setText(text);
-	content.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
-	content.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),
-		font));
-
-	int textColor;
-	int viewColor;
-	if (dark) {
-	    textColor = getResources().getColor(android.R.color.white);
-	    viewColor = getResources().getColor(android.R.color.black);
-	} else {
-	    textColor = getResources().getColor(android.R.color.black);
-	    viewColor = getResources().getColor(android.R.color.white);
-	}
-	content.setTextColor(textColor);
-	frame.setBackgroundColor(viewColor);
-	scroll.setBackgroundColor(viewColor);
+	frame = inflater.inflate(R.layout.fragment_content, container, false);
+	scroll = frame.findViewById(R.id.scroll);
+	content = (EditText) frame.findViewById(R.id.text);
+	sp = getActivity().getPreferences(Context.MODE_PRIVATE);
+	position = getArguments().getString("position");
+	update();
 
 	content.addTextChangedListener(new TextWatcher() {
 
@@ -74,5 +56,33 @@ public class ContentFragment extends Fragment {
 
 	frame.setTag("TAG" + position);
 	return frame;
+    }
+
+    /*
+     * setup look and content from preferences
+     */
+    public void update() {
+	String text = sp.getString("CONTENT" + position, "");
+	float size = sp.getFloat("FONT_SIZE" + position, 50);
+	String font = sp.getString("FONT" + position, C.FONT_SLAB);
+	boolean dark = sp.getBoolean("DARK_THEME" + position, false);
+
+	content.setText(text);
+	content.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+	content.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),
+		font));
+
+	int textColor;
+	int viewColor;
+	if (dark) {
+	    textColor = getResources().getColor(android.R.color.white);
+	    viewColor = getResources().getColor(android.R.color.black);
+	} else {
+	    textColor = getResources().getColor(android.R.color.black);
+	    viewColor = getResources().getColor(android.R.color.white);
+	}
+	content.setTextColor(textColor);
+	frame.setBackgroundColor(viewColor);
+	scroll.setBackgroundColor(viewColor);
     }
 }

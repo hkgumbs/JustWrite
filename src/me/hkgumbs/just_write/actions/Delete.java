@@ -22,6 +22,7 @@ public class Delete implements MyMenuAction {
 
 	// move all saved stuff over
 	int p = pager.getCurrentItem();
+	int original = p;
 	SharedPreferences.Editor editor = sp.edit();
 	String position = p == 0 ? "" : Integer.toString(p);
 	String next = Integer.toString(p + 1);
@@ -45,15 +46,20 @@ public class Delete implements MyMenuAction {
 	}
 
 	// remove extra preferences
+	pages--;
+	editor.putInt("pages", pages);
 	editor.remove("CONTENT" + position);
 	editor.remove("FONT_SIZE" + position);
 	editor.remove("FONT" + position);
 	editor.remove("DARK_THEME" + position);
-	editor.putInt("pages", pages - 1);
 	editor.apply();
 
+	// redraw
 	pager.invalidate();
 	pager.getAdapter().notifyDataSetChanged();
+	if (original == pages)
+	    original -= 1;
+	pager.setCurrentItem(original);
     }
 
 }
