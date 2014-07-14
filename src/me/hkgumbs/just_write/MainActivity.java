@@ -23,7 +23,6 @@ public class MainActivity extends FragmentActivity implements
     private ShakeDetector sd;
 
     MyMenu menu;
-    ActionHandler handler;
     MyFragmentAdapter pagerAdapter;
     ViewPager pager;
 
@@ -37,9 +36,7 @@ public class MainActivity extends FragmentActivity implements
 	pagerAdapter = new MyFragmentAdapter(getSupportFragmentManager());
 	pager = (ViewPager) findViewById(R.id.pager);
 	pager.setAdapter(pagerAdapter);
-
-	handler = new ActionHandler(this, pager);
-	menu = new MyMenu(this, handler);
+	menu = new MyMenu(this, pager);
     }
 
     @Override

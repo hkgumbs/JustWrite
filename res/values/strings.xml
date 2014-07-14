@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Just Write</string>
-    <string name="hint">Shake for menu!</string>
-    <string name="notification_title">Note captured!</string>
-    <string name="notification_desc">Touch to view your image.</string>
     <string name="alert_title">Sorry</string>
     <string name="alert_desc">The image failed to save.</string>
-
+    <string name="app_name">Just Write</string>
+    <string name="hint">Shake for menu!</string>
+    <string name="notification_desc">Touch to view your image.</string>
+    <string name="notification_title">Note captured!</string>
+    
     <string-array name="commands">
         <item>Capture as image</item>
         <item>Toggle theme</item>
