@@ -4,6 +4,7 @@ import me.hkgumbs.just_write.C;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.widget.Toast;
 
@@ -55,11 +56,14 @@ public class Delete implements MyMenuAction {
 	editor.apply();
 
 	// redraw
-	pager.invalidate();
-	pager.getAdapter().notifyDataSetChanged();
-	if (original == pages)
-	    original -= 1;
-	pager.setCurrentItem(original);
-    }
+	PagerAdapter adapter = pager.getAdapter();
+	adapter.notifyDataSetChanged();
+	pager.setAdapter(adapter);
 
+	// if last page adjust original index
+	if (original == pages)
+	    original--;
+	pager.setCurrentItem(original, false);
+
+    }
 }

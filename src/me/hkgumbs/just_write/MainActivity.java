@@ -43,7 +43,7 @@ public class MainActivity extends FragmentActivity implements
     public void onResume() {
 	super.onResume();
 
-	// INIT SHAKEDETECTOR
+	// initialize shake detector
 	sd = new ShakeDetector(this);
 	sd.start((SensorManager) getSystemService(SENSOR_SERVICE));
     }
@@ -108,7 +108,7 @@ public class MainActivity extends FragmentActivity implements
 		((ContentFragment) object).update();
 	    return super.getItemPosition(object);
 	}
-
+	
     }
 
 }

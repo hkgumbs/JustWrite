@@ -16,7 +16,7 @@ public class Add implements MyMenuAction {
 	// redraw
 	pager.getAdapter().notifyDataSetChanged();
 	int count = pager.getAdapter().getCount();
-	pager.setCurrentItem(count - 1);
+	pager.setCurrentItem(count - 1, true);
     }
 
 }

@@ -79,7 +79,6 @@ public class Font implements MyMenuAction {
 	    }
 
 	});
-	return;
     }
 
     /*
