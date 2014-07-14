@@ -23,6 +23,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.widget.TextView;
 
 public class Capture implements MyMenuAction {
@@ -31,7 +32,12 @@ public class Capture implements MyMenuAction {
 
     @Override
     public void execute(final Activity activity, final ViewPager pager) {
-	TextView content = (TextView) activity.findViewById(R.id.text);
+
+	// find view
+	int p = pager.getCurrentItem();
+	String position = p == 0 ? "" : Integer.toString(p);
+	View current = pager.findViewWithTag("TAG" + position);
+	TextView content = (TextView) current.findViewById(R.id.text);
 
 	// CREATE BITMAP FROM SCREEN CAPTURE
 	content.setCursorVisible(false);
