@@ -24,65 +24,65 @@ public class ContentFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-	    Bundle savedInstanceState) {
-	super.onCreateView(inflater, container, savedInstanceState);
+                             Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
 
-	frame = inflater.inflate(R.layout.fragment_content, container, false);
-	scroll = frame.findViewById(R.id.scroll);
-	content = (EditText) frame.findViewById(R.id.text);
-	sp = getActivity().getPreferences(Context.MODE_PRIVATE);
-	position = getArguments().getString("position");
-	update();
+        frame = inflater.inflate(R.layout.fragment_content, container, false);
+        scroll = frame.findViewById(R.id.scroll);
+        content = (EditText) frame.findViewById(R.id.text);
+        sp = getActivity().getPreferences(Context.MODE_PRIVATE);
+        position = getArguments().getString("position");
+        update();
 
-	content.addTextChangedListener(new TextWatcher() {
+        content.addTextChangedListener(new TextWatcher() {
 
-	    @Override
-	    public void afterTextChanged(Editable arg0) {
-		sp.edit()
-			.putString("CONTENT" + position,
-				content.getText().toString()).apply();
-	    }
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                sp.edit()
+                        .putString("CONTENT" + position,
+                                content.getText().toString()).apply();
+            }
 
-	    @Override
-	    public void beforeTextChanged(CharSequence s, int start, int count,
-		    int after) {
-	    }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+            }
 
-	    @Override
-	    public void onTextChanged(CharSequence s, int start, int before,
-		    int count) {
-	    }
-	});
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+            }
+        });
 
-	frame.setTag("TAG" + position);
-	return frame;
+        frame.setTag("TAG" + position);
+        return frame;
     }
 
     /*
      * setup look and content from preferences
      */
     public void update() {
-	String text = sp.getString("CONTENT" + position, "");
-	float size = sp.getFloat("FONT_SIZE" + position, 50);
-	String font = sp.getString("FONT" + position, C.FONT_SLAB);
-	boolean dark = sp.getBoolean("DARK_THEME" + position, false);
+        String text = sp.getString("CONTENT" + position, "");
+        float size = sp.getFloat("FONT_SIZE" + position, 50);
+        String font = sp.getString("FONT" + position, C.FONT_SLAB);
+        boolean dark = sp.getBoolean("DARK_THEME" + position, false);
 
-	content.setText(text);
-	content.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
-	content.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),
-		font));
+        content.setText(text);
+        content.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+        content.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),
+                font));
 
-	int textColor;
-	int viewColor;
-	if (dark) {
-	    textColor = getResources().getColor(android.R.color.white);
-	    viewColor = getResources().getColor(android.R.color.black);
-	} else {
-	    textColor = getResources().getColor(android.R.color.black);
-	    viewColor = getResources().getColor(android.R.color.white);
-	}
-	content.setTextColor(textColor);
-	frame.setBackgroundColor(viewColor);
-	scroll.setBackgroundColor(viewColor);
+        int textColor;
+        int viewColor;
+        if (dark) {
+            textColor = getResources().getColor(android.R.color.white);
+            viewColor = getResources().getColor(android.R.color.black);
+        } else {
+            textColor = getResources().getColor(android.R.color.black);
+            viewColor = getResources().getColor(android.R.color.white);
+        }
+        content.setTextColor(textColor);
+        frame.setBackgroundColor(viewColor);
+        scroll.setBackgroundColor(viewColor);
     }
 }
