@@ -1,33 +1,25 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ffffff" >
+    xmlns:fab="http://schemas.android.com/apk/res-auto" android:id="@+id/root"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#ffffff">
 
-    <ScrollView
-        android:id="@+id/scroll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:background="#ffffff" >
+    <com.melnykov.fab.ObservableScrollView android:id="@+id/scroll"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical" android:background="#ffffff">
 
-        <EditText
-            android:id="@+id/text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#00000000"
-            android:gravity="left"
-            android:hint="@string/hint"
+        <EditText android:id="@+id/text" android:imeOptions="flagNoExtractUi"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="#00000000" android:gravity="left" android:hint="@string/hint"
             android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
-            android:padding="10dp"
-            android:scrollHorizontally="false"
-            android:textColor="#000000"
-            android:textCursorDrawable="@null"
-            android:textSize="50sp" >
+            android:padding="10dp" android:scrollHorizontally="false" android:textColor="#000000"
+            android:textCursorDrawable="@null" android:textSize="50sp"></EditText>
 
-            <requestFocus />
-        </EditText>
-    </ScrollView>
+    </com.melnykov.fab.ObservableScrollView>
+
+    <com.melnykov.fab.FloatingActionButton android:id="@+id/fab" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_gravity="bottom|right"
+        android:layout_margin="16dp" android:src="@drawable/ic_action_content_new"
+        fab:fab_colorNormal="#F44336" fab:fab_colorPressed="#B71C1C"
+        fab:fab_colorRipple="#D32F2F" />
 
 </FrameLayout>

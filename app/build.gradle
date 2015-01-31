@@ -21,7 +21,6 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:20.0.0'
     compile files('libs/android-support-v13.jar')
-    compile files('libs/square-seismic-1.0.0.jar')
 }
 
 configurations {

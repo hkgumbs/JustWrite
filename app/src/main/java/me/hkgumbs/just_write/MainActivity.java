@@ -1,113 +1,71 @@
 package me.hkgumbs.just_write;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
+import android.view.WindowManager;
+import android.widget.Toast;
 
-import com.squareup.seismic.ShakeDetector;
+public class MainActivity extends FragmentActivity {
 
-public class MainActivity extends FragmentActivity implements
-        ShakeDetector.Listener {
-
-    private SharedPreferences sp;
-    private ShakeDetector sd;
-
-    MyMenu menu;
     MyFragmentAdapter pagerAdapter;
     ViewPager pager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // hides actionbar on main activity
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_home);
 
-        sp = getPreferences(Context.MODE_PRIVATE);
-        pagerAdapter = new MyFragmentAdapter(getSupportFragmentManager());
+        // show actionbar when status bar is visible
+        getWindow().getDecorView().getRootView().setOnSystemUiVisibilityChangeListener(
+                new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                            Toast.makeText(MainActivity.this, "visible", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "hidden", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | 0x4);
+
+        // initialize fields
+        int size = getPreferences(Context.MODE_PRIVATE).getInt("pages", 1);
+        pagerAdapter = new MyFragmentAdapter(getSupportFragmentManager(), size);
         pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(pagerAdapter);
-        menu = new MyMenu(this, pager);
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // initialize shake detector
-        sd = new ShakeDetector(this);
-        sd.start((SensorManager) getSystemService(SENSOR_SERVICE));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        sd.stop();
+        // TODO focus edittext
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             // hardware menu button
-            hearShake();
+            openMenu();
             return true;
         } else
             return super.onKeyDown(keyCode, event);
     }
 
-    public void hearShake() {
-        // shake detector implemented in square-seismic-1.0.0.jar
+    private void openMenu() {
         int position = pager.getCurrentItem();
         View root = pager.getChildAt(position);
-        if (menu.open(position, root)) {
-            // hide keyboard
-            InputMethodManager imm = (InputMethodManager) this
-                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(pager.getWindowToken(), 0);
-        }
-    }
-
-    class MyFragmentAdapter extends FragmentStatePagerAdapter {
-
-        public MyFragmentAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public ContentFragment getItem(int position) {
-            ContentFragment fragment = new ContentFragment();
-            Bundle arg = new Bundle();
-            String value;
-            if (position == 0)
-                // first element gets empty argument for legacy reasons
-                value = "";
-            else
-                value = Integer.toString(position);
-            arg.putString("position", value);
-            fragment.setArguments(arg);
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            return sp.getInt("pages", 1);
-        }
-
-        @Override
-        public int getItemPosition(Object object) {
-            if (object instanceof ContentFragment)
-                ((ContentFragment) object).update();
-            return super.getItemPosition(object);
-        }
-
+        // TODO start menu activity for result
     }
 
 }

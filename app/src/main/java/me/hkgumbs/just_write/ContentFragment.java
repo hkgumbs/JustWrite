@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+
 public class ContentFragment extends Fragment {
 
     View frame;
@@ -38,6 +39,7 @@ public class ContentFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable arg0) {
+                // save text to SharedPreferences as user is typing
                 sp.edit()
                         .putString("CONTENT" + position,
                                 content.getText().toString()).apply();
@@ -59,7 +61,7 @@ public class ContentFragment extends Fragment {
     }
 
     /*
-     * setup look and content from preferences
+     * setup appearance and content from preferences
      */
     public void update() {
         String text = sp.getString("CONTENT" + position, "");
