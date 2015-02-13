@@ -8,10 +8,14 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ScrollView;
+import android.widget.Toast;
 
 
 public class ContentFragment extends Fragment {
@@ -53,6 +57,16 @@ public class ContentFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before,
                                       int count) {
+            }
+        });
+
+        scroll.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ScrollView s = (ScrollView) v;
+                if (s.getScrollY() == 0)
+                    Toast.makeText(ContentFragment.this.getActivity(), event.toString(), Toast.LENGTH_SHORT).show();
+                return false;
             }
         });
 
