@@ -5,13 +5,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.view.ViewPager;
 
+import me.hkgumbs.just_write.C;
+
 public class Add implements MyMenuAction {
 
     @Override
     public void execute(final Activity activity, final ViewPager pager) {
         SharedPreferences sp = activity.getPreferences(Context.MODE_PRIVATE);
-        int pages = sp.getInt("pages", 1) + 1;
-        sp.edit().putInt("pages", pages).apply();
+        int pages = sp.getInt(C.PAGES, 1) + 1;
+        sp.edit().putInt(C.PAGES, pages).apply();
 
         // redraw
         pager.getAdapter().notifyDataSetChanged();

@@ -25,7 +25,7 @@ public class Font implements MyMenuAction {
         // find view
         int p = pager.getCurrentItem();
         String position = p == 0 ? "" : Integer.toString(p);
-        View current = pager.findViewWithTag("TAG" + position);
+        View current = pager.findViewWithTag(position);
 
         final TextView content = (TextView) current.findViewById(R.id.text);
         final SharedPreferences sp = activity
@@ -34,7 +34,7 @@ public class Font implements MyMenuAction {
         // setup dialog
         LayoutInflater in = LayoutInflater.from(activity);
         View layout = in.inflate(R.layout.dialog_font, null);
-        final String SIZE = "FONT_SIZE" + position;
+        final String SIZE = C.FONT_SIZE + position;
 
         new AlertDialog.Builder(activity)
                 .setView(layout)

@@ -9,4 +9,13 @@ public interface C {
 
     final static String SUCCESS_MESSAGE = "DIS JOINT WAS SUCCESSFUL!";
 
+    final static String POSITION = "position";
+
+    // SharedPreferences keys
+    final static String CONTENT = "CONTENT";
+    final static String FONT = "FONT";
+    final static String FONT_SIZE = "FONT_SIZE";
+    final static String DARK_THEME = "DARK_THEME";
+    final static String PAGES = "pages";
+
 }

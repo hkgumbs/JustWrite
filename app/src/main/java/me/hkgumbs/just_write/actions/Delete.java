@@ -15,7 +15,7 @@ public class Delete implements MyMenuAction {
     public void execute(Activity activity, ViewPager pager) {
         // check that not the last page
         SharedPreferences sp = activity.getPreferences(Context.MODE_PRIVATE);
-        int pages = sp.getInt("pages", 1);
+        int pages = sp.getInt(C.PAGES, 1);
         if (pages == 1) {
             Toast.makeText(activity, "Cannot delete the only page!",
                     Toast.LENGTH_SHORT).show();
@@ -30,17 +30,17 @@ public class Delete implements MyMenuAction {
         String next = Integer.toString(p + 1);
 
         while (p < pages - 1) {
-            String text = sp.getString("CONTENT" + next, "");
-            editor.putString("CONTENT" + position, text);
+            String text = sp.getString(C.CONTENT + next, "");
+            editor.putString(C.CONTENT + position, text);
 
-            float size = sp.getFloat("FONT_SIZE" + next, 50);
-            editor.putFloat("FONT_SIZE" + position, size);
+            float size = sp.getFloat(C.FONT_SIZE + next, 50);
+            editor.putFloat(C.FONT_SIZE + position, size);
 
-            String font = sp.getString("FONT" + next, C.FONT_SLAB);
-            editor.putString("FONT" + position, font);
+            String font = sp.getString(C.FONT + next, C.FONT_SLAB);
+            editor.putString(C.FONT + position, font);
 
-            boolean dark = sp.getBoolean("DARK_THEME" + next, false);
-            editor.putBoolean("DARK_THEME" + position, dark);
+            boolean dark = sp.getBoolean(C.DARK_THEME + next, false);
+            editor.putBoolean(C.DARK_THEME + position, dark);
 
             p++;
             position = next; // Integer.toString(p)
@@ -49,11 +49,11 @@ public class Delete implements MyMenuAction {
 
         // remove extra preferences
         pages--;
-        editor.putInt("pages", pages);
-        editor.remove("CONTENT" + position);
-        editor.remove("FONT_SIZE" + position);
-        editor.remove("FONT" + position);
-        editor.remove("DARK_THEME" + position);
+        editor.putInt(C.PAGES, pages);
+        editor.remove(C.CONTENT + position);
+        editor.remove(C.FONT_SIZE + position);
+        editor.remove(C.FONT + position);
+        editor.remove(C.DARK_THEME + position);
         editor.apply();
 
         // redraw

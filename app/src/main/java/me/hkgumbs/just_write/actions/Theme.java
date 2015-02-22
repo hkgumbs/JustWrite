@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.view.ViewPager;
 
+import me.hkgumbs.just_write.C;
+
 public class Theme implements MyMenuAction {
 
     @Override
@@ -15,8 +17,8 @@ public class Theme implements MyMenuAction {
                 .getPreferences(Context.MODE_PRIVATE);
         int p = pager.getCurrentItem();
         String position = p == 0 ? "" : Integer.toString(p);
-        boolean dark = sp.getBoolean("DARK_THEME" + position, false);
-        sp.edit().putBoolean("DARK_THEME" + position, !dark).apply();
+        boolean dark = sp.getBoolean(C.DARK_THEME + position, false);
+        sp.edit().putBoolean(C.DARK_THEME + position, !dark).apply();
 
         // redraw
         pager.getAdapter().notifyDataSetChanged();

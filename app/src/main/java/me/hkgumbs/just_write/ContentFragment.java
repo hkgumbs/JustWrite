@@ -2,6 +2,7 @@ package me.hkgumbs.just_write;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,19 +10,21 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.DragEvent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 public class ContentFragment extends Fragment {
 
     View frame;
-    View scroll;
+    ScrollView scroll;
     EditText content;
 
     SharedPreferences sp;
@@ -33,10 +36,10 @@ public class ContentFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
 
         frame = inflater.inflate(R.layout.fragment_content, container, false);
-        scroll = frame.findViewById(R.id.scroll);
+        scroll = (ScrollView) frame.findViewById(R.id.scroll);
         content = (EditText) frame.findViewById(R.id.text);
         sp = getActivity().getPreferences(Context.MODE_PRIVATE);
-        position = getArguments().getString("position");
+        position = getArguments().getString(C.POSITION);
         update();
 
         content.addTextChangedListener(new TextWatcher() {
@@ -45,7 +48,7 @@ public class ContentFragment extends Fragment {
             public void afterTextChanged(Editable arg0) {
                 // save text to SharedPreferences as user is typing
                 sp.edit()
-                        .putString("CONTENT" + position,
+                        .putString(C.CONTENT + position,
                                 content.getText().toString()).apply();
             }
 
@@ -60,17 +63,7 @@ public class ContentFragment extends Fragment {
             }
         });
 
-        scroll.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                ScrollView s = (ScrollView) v;
-                if (s.getScrollY() == 0)
-                    Toast.makeText(ContentFragment.this.getActivity(), event.toString(), Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-        frame.setTag("TAG" + position);
+        frame.setTag(position);
         return frame;
     }
 
@@ -78,10 +71,10 @@ public class ContentFragment extends Fragment {
      * setup appearance and content from preferences
      */
     public void update() {
-        String text = sp.getString("CONTENT" + position, "");
-        float size = sp.getFloat("FONT_SIZE" + position, 50);
-        String font = sp.getString("FONT" + position, C.FONT_SLAB);
-        boolean dark = sp.getBoolean("DARK_THEME" + position, false);
+        String text = sp.getString(C.CONTENT + position, "");
+        float size = sp.getFloat(C.FONT_SIZE + position, 50);
+        String font = sp.getString(C.FONT + position, C.FONT_SLAB);
+        boolean dark = sp.getBoolean(C.DARK_THEME + position, false);
 
         content.setText(text);
         content.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);

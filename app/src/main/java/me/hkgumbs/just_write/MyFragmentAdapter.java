@@ -22,11 +22,11 @@ public class MyFragmentAdapter extends FragmentStatePagerAdapter {
         Bundle arg = new Bundle();
         String value;
         if (position == 0)
-            // first element gets empty argument for legacy reasons
+            // first element gets empty argument to support old versions
             value = "";
         else
             value = Integer.toString(position);
-        arg.putString("position", value);
+        arg.putString(C.POSITION, value);
         fragment.setArguments(arg);
         return fragment;
     }

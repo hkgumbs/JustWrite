@@ -37,7 +37,7 @@ public class Capture implements MyMenuAction {
         // find view
         int p = pager.getCurrentItem();
         String position = p == 0 ? "" : Integer.toString(p);
-        View current = pager.findViewWithTag("TAG" + position);
+        View current = pager.findViewWithTag(position);
         TextView content = (TextView) current.findViewById(R.id.text);
 
         // CREATE BITMAP FROM SCREEN CAPTURE
