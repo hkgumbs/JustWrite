@@ -20,13 +20,7 @@ public class MyFragmentAdapter extends FragmentStatePagerAdapter {
     public ContentFragment getItem(int position) {
         ContentFragment fragment = new ContentFragment();
         Bundle arg = new Bundle();
-        String value;
-        if (position == 0)
-            // first element gets empty argument to support old versions
-            value = "";
-        else
-            value = Integer.toString(position);
-        arg.putString(C.POSITION, value);
+        arg.putString(C.POSITION, C.spKey(position));
         fragment.setArguments(arg);
         return fragment;
     }
