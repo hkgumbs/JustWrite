@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
+    compile 'me.drakeet.materialdialog:library:1.2.2'
     compile 'com.android.support:support-v4:21.0.+'
     compile 'com.android.support:appcompat-v7:21.0.+'
-    compile 'com.getbase:floatingactionbutton:1.8.0'
 }

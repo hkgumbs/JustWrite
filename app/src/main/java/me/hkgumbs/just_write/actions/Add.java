@@ -7,7 +7,7 @@ import android.support.v4.view.ViewPager;
 
 import me.hkgumbs.just_write.C;
 
-public class Add implements MyMenuAction {
+public class Add extends MyMenuAction {
 
     @Override
     public void execute(final Activity activity, final ViewPager pager) {
@@ -15,7 +15,6 @@ public class Add implements MyMenuAction {
         int pages = sp.getInt(C.PAGES, 1) + 1;
         sp.edit().putInt(C.PAGES, pages).apply();
 
-        // redraw
         pager.getAdapter().notifyDataSetChanged();
         int count = pager.getAdapter().getCount();
         pager.setCurrentItem(count - 1, true);

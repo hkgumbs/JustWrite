@@ -1,4 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white_pressed">#e5e5e5</color>
-    <color name="black_pressed">#191919</color>
+    <item name="menu" type="color">#808B8B8B</item>
 </resources>

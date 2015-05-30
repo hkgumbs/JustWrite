@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="alert_title">Sorry</string>
-    <string name="alert_desc">The image failed to save.</string>
     <string name="app_name">Just Write</string>
-    <string name="hint">Swipe down for menu!</string>
+
     <string name="notification_desc">Touch to view your image.</string>
     <string name="notification_title">Note captured!</string>
-    
-    <string-array name="commands">
-        <item>Capture as image</item>
-        <item>Toggle theme</item>
-        <item>Change font</item>
-        <item>Add new page</item>
-        <item>Delete this page</item>
-        <!-- <item>Show some love</item> -->
-    </string-array>
-    <string-array name="icons">
-        <item>&#xf1c5;</item>
-        <item>&#xf042;</item>
-        <item>&#xf031;</item>
-        <item>&#xf196;</item>
-        <item>&#xf014;</item>
-        <!-- <item>&#xf004;</item> -->
-    </string-array>
+
+    <string name="alert_title">Screenshot failed</string>
+    <string name="alert_desc">Would you like to report this bug?</string>
+    <string name="alert_pos">REPORT</string>
+    <string name="alert_neg">CANCEL</string>
+
+    <string name="email">h.kofigumbs@gmail.com</string>
+    <string name="subject">#JustWriteBugReport</string>
+    <string name="type">message/rfc822</string>
+
+    <string name="capture">Capture</string>
+    <string name="dark_theme">Dark mode</string>
+    <string name="light_theme">Light mode</string>
+    <string name="delete">Delete page</string>
+    <string name="add">New page</string>
 
 </resources>

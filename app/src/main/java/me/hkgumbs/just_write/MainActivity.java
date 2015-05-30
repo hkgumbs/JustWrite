@@ -4,71 +4,70 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
+import me.hkgumbs.just_write.actions.Add;
+import me.hkgumbs.just_write.actions.Capture;
+import me.hkgumbs.just_write.actions.Delete;
+import me.hkgumbs.just_write.actions.MyMenuAction;
+import me.hkgumbs.just_write.actions.Theme;
 
 
-public class MainActivity extends ActionBarActivity implements ViewPager.OnPageChangeListener, View.OnClickListener {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
-    ActionBar ab;
-    FloatingActionButton fab;
-    MyFragmentAdapter pagerAdapter;
-    ViewPager pager;
     SharedPreferences sp;
+    ViewPager pager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        pager = (ViewPager) findViewById(R.id.pager);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-
-        ab = getSupportActionBar();
-        ab.hide();
-        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM, ActionBar.DISPLAY_SHOW_CUSTOM);
-        ab.setCustomView(R.layout.actionbar_main);
-
         sp = getPreferences(Context.MODE_PRIVATE);
-        int size = sp.getInt(C.PAGES, 1);
-        pagerAdapter = new MyFragmentAdapter(getSupportFragmentManager(), size);
-        pager.setAdapter(pagerAdapter);
-        pager.setOnPageChangeListener(this);
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(new MyFragmentAdapter(this));
 
-        fab.setOnClickListener(this);
-        onPageSelected(0);
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset,
-                               int positionOffsetPixels) {
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        boolean dark = sp.getBoolean(C.DARK_THEME, false);
-        if (dark) {
-            fab.setColorNormalResId(android.R.color.black);
-            fab.setColorPressedResId(R.color.black_pressed);
-        } else {
-            fab.setColorNormalResId(android.R.color.white);
-            fab.setColorPressedResId(R.color.white_pressed);
-        }
+        ImageButton menu = (ImageButton) findViewById(R.id.menu);
+        menu.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        if (ab.isShowing())
-            ab.hide();
+        PopupMenu pm = new PopupMenu(this, v);
+        pm.setOnMenuItemClickListener(this);
+        pm.inflate(R.menu.main);
+
+        // change theme text
+        String key = C.DARK_THEME + C.spKey(pager.getCurrentItem());
+        boolean dark = sp.getBoolean(key, false);
+        String title = getString(dark ? R.string.light_theme : R.string.dark_theme);
+        pm.getMenu().findItem(R.id.theme).setTitle(title);
+
+        pm.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        MyMenuAction action;
+        int id = item.getItemId();
+
+        if (id == R.id.capture)
+            action = new Capture();
+        else if (id == R.id.theme)
+            action = new Theme();
+        else if (id == R.id.add)
+            action = new Add();
+        else if (id == R.id.delete)
+            action = new Delete();
         else
-            ab.show();
+            return super.onOptionsItemSelected(item);
+
+        action.execute(this, pager);
+        return true;
     }
 
 }

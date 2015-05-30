@@ -1,7 +1,9 @@
 package me.hkgumbs.just_write;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 /**
@@ -9,11 +11,11 @@ import android.support.v4.app.FragmentStatePagerAdapter;
  */
 public class MyFragmentAdapter extends FragmentStatePagerAdapter {
 
-    private int size;
+    SharedPreferences sp;
 
-    public MyFragmentAdapter(FragmentManager fm, int size) {
-        super(fm);
-        this.size = size;
+    public MyFragmentAdapter(FragmentActivity activity) {
+        super(activity.getSupportFragmentManager());
+        sp = activity.getPreferences(Context.MODE_PRIVATE);
     }
 
     @Override
@@ -27,7 +29,7 @@ public class MyFragmentAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return size;
+        return sp.getInt(C.PAGES, 1);
     }
 
     @Override

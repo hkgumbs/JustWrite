@@ -1,7 +1,6 @@
 package me.hkgumbs.just_write.actions;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
@@ -16,6 +15,8 @@ import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.File;
@@ -24,77 +25,91 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 
+import me.drakeet.materialdialog.MaterialDialog;
 import me.hkgumbs.just_write.C;
 import me.hkgumbs.just_write.R;
 
-public class Capture implements MyMenuAction {
+public class Capture extends MyMenuAction {
 
     private final static int NOTIFICATION_ID = 88;
 
     @Override
     public void execute(final Activity activity, final ViewPager pager) {
 
-        // find view
-        int p = pager.getCurrentItem();
-        String position = p == 0 ? "" : Integer.toString(p);
+        // find textview
+        String position = C.spKey(pager.getCurrentItem());
         View current = pager.findViewWithTag(position);
-        TextView content = (TextView) current.findViewById(R.id.text);
+        TextView text = (TextView) current.findViewById(R.id.text);
 
-        // CREATE BITMAP FROM SCREEN CAPTURE
-        content.setCursorVisible(false);
+        // hide keyboard
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(text.getWindowToken(), 0);
+
+        // create bitmap from screen capture
+        text.setCursorVisible(false);
         pager.setDrawingCacheEnabled(true);
         Bitmap bitmap = Bitmap.createBitmap(pager.getDrawingCache());
         pager.setDrawingCacheEnabled(false);
-        content.setCursorVisible(true);
+        text.setCursorVisible(true);
 
-        new AsyncTask<Bitmap, Void, String>() {
-            String name;
-            String root;
-            File file;
+        new CaptureAsyncTask(activity, bitmap).execute();
+    }
 
-            @Override
-            protected String doInBackground(Bitmap... b) {
+    private class CaptureAsyncTask extends AsyncTask<Void, Void, Exception> {
 
-                // image naming scheme
-                name = new Timestamp(new java.util.Date().getTime()).toString()
-                        + ".jpg";
-                root = Environment.getExternalStorageDirectory().toString()
-                        + "/Just Write/";
-                File dir = new File(root);
-                dir.mkdirs();
-                file = new File(dir, name);
-                if (file.exists())
-                    file.delete();
+        final Activity activity;
+        final Bitmap bitmap;
 
-                // save file to device
-                try {
-                    FileOutputStream out = new FileOutputStream(file);
-                    b[0].compress(Bitmap.CompressFormat.JPEG, 90, out);
-                    out.flush();
-                    out.close();
+        String name;
+        String root;
+        File file;
 
-                } catch (Exception e) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter pw = new PrintWriter(sw);
-                    e.printStackTrace(pw);
-                    return sw.toString();
-                }
+        CaptureAsyncTask(Activity activity, Bitmap bitmap) {
+            this.activity = activity;
+            this.bitmap = bitmap;
+        }
 
-                return C.SUCCESS_MESSAGE;
+        @Override
+        protected Exception doInBackground(Void... b) {
+            // image naming scheme
+            name = new Timestamp(new java.util.Date().getTime()).toString()
+                    + ".jpg";
+            root = Environment.getExternalStorageDirectory().toString()
+                    + "/Just Write/";
+            File dir = new File(root);
+            dir.mkdirs();
+            file = new File(dir, name);
+            if (file.exists())
+                file.delete();
+
+            // save file to device
+            try {
+                FileOutputStream out = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                return e;
             }
 
-            @Override
-            protected void onPostExecute(String result) {
+            return null;
+        }
 
+        @Override
+        protected void onPostExecute(Exception e) {
+            if (e != null) {
                 // error case
-                if (result != C.SUCCESS_MESSAGE) {
-                    new AlertDialog.Builder(activity)
-                            .setTitle(R.string.alert_title)
-                            .setMessage(R.string.alert_desc).create().show();
-                    // TODO use error string to send email
-                    return;
-                }
+                MaterialDialog dialog = new MaterialDialog(activity);
+                View.OnClickListener listener = new DialogButtonListener(activity, dialog, e);
+                dialog.setTitle(R.string.alert_title);
+                dialog.setMessage(R.string.alert_desc);
+                dialog.setPositiveButton(R.string.alert_pos, listener);
+                dialog.setNegativeButton(R.string.alert_neg, listener);
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.show();
 
+            } else {
                 // refresh gallery
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
@@ -116,7 +131,7 @@ public class Capture implements MyMenuAction {
                 shareIntent.setAction(Intent.ACTION_SEND);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
                 shareIntent.setType("image/jpeg");
-                Intent i = Intent.createChooser(shareIntent, "Choose action");
+                Intent i = Intent.createChooser(shareIntent, "Share");
                 PendingIntent sharePending = PendingIntent.getActivity(
                         activity, 0, i, PendingIntent.FLAG_ONE_SHOT);
 
@@ -142,10 +157,50 @@ public class Capture implements MyMenuAction {
                         .getSystemService(Context.NOTIFICATION_SERVICE);
                 nm.cancel(NOTIFICATION_ID); // remove old notification
                 nm.notify(NOTIFICATION_ID, builder.build());
+            }
+        }
 
+    }
+
+    private class DialogButtonListener implements View.OnClickListener {
+        Activity activity;
+        MaterialDialog dialog;
+        Exception e;
+
+        DialogButtonListener(Activity activity, MaterialDialog dialog, Exception e) {
+            this.activity = activity;
+            this.dialog = dialog;
+            this.e = e;
+        }
+
+        @Override
+        public void onClick(View v) {
+            String label = ((Button) v).getText().toString();
+            String positive = activity.getString(R.string.alert_pos);
+            if (label.equals(positive)) {
+                String recipient = activity.getString(R.string.email);
+                String subject = activity.getString(R.string.subject);
+                String type = activity.getString(R.string.type);
+
+                // get stacktrace as string
+                StringWriter sw = new StringWriter();
+                e.printStackTrace(new PrintWriter(sw));
+                String body = sw.toString();
+
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType(type);
+                i.putExtra(Intent.EXTRA_EMAIL, new String[]{recipient});
+                i.putExtra(Intent.EXTRA_SUBJECT, subject);
+                i.putExtra(Intent.EXTRA_TEXT, body);
+
+                try {
+                    activity.startActivity(Intent.createChooser(i, "Send email"));
+                } catch (android.content.ActivityNotFoundException ex) {
+                }
             }
 
-        }.execute(bitmap);
+            dialog.dismiss();
+        }
     }
 
 }

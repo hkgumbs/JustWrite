@@ -12,68 +12,65 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ScrollView;
 
 
 public class ContentFragment extends Fragment {
 
-    View frame;
-    ScrollView scroll;
-    EditText content;
+    ViewGroup frame;
+    EditText text;
 
     SharedPreferences sp;
-    String position;
+    String key;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        frame = inflater.inflate(R.layout.fragment_content, container, false);
-        scroll = (ScrollView) frame.findViewById(R.id.scroll);
-        content = (EditText) frame.findViewById(R.id.text);
+        frame = (ViewGroup) inflater.inflate(R.layout.fragment_content, container, false);
+        text = (EditText) frame.findViewById(R.id.text);
         sp = getActivity().getPreferences(Context.MODE_PRIVATE);
-        position = getArguments().getString(C.POSITION);
+        key = getArguments().getString(C.POSITION);
         update();
 
-        content.addTextChangedListener(new TextWatcher() {
+        // setup pinch to change font
+        FontScaler fs = new FontScaler(getActivity(), text, key);
+        frame.setOnTouchListener(fs);
 
+        // save text to SharedPreferences as user is typing
+        text.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable arg0) {
-                // save text to SharedPreferences as user is typing
-                sp.edit()
-                        .putString(C.CONTENT + position,
-                                content.getText().toString()).apply();
+                sp.edit().putString(C.CONTENT + key, text.getText().toString()).apply();
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before,
-                                      int count) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         });
 
-        frame.setTag(position);
+        // helps finds frame in Capture
+        // ideally would not need to use findViewWithTag
+        frame.setTag(key);
+
         return frame;
     }
 
-    /*
-     * setup appearance and content from preferences
+    /**
+     * Setup appearance and text from preferences. This method is '''public''' so that it can be
+     * called in MyFragmentAdapter.getItemPosition instead of return POSITION_NONE.
      */
     public void update() {
-        String text = sp.getString(C.CONTENT + position, "");
-        float size = sp.getFloat(C.FONT_SIZE + position, 50);
-        String font = sp.getString(C.FONT + position, C.FONT_SLAB);
-        boolean dark = sp.getBoolean(C.DARK_THEME + position, false);
+        String content = sp.getString(C.CONTENT + key, "");
+        float size = sp.getFloat(C.FONT_SIZE + key, 50);
+        boolean dark = sp.getBoolean(C.DARK_THEME + key, false);
 
-        content.setText(text);
-        content.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
-        content.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),
-                font));
+        text.setText(content);
+        text.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
+        text.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), C.FONT_SLAB));
 
         int textColor;
         int viewColor;
@@ -84,8 +81,7 @@ public class ContentFragment extends Fragment {
             textColor = getResources().getColor(android.R.color.black);
             viewColor = getResources().getColor(android.R.color.white);
         }
-        content.setTextColor(textColor);
+        text.setTextColor(textColor);
         frame.setBackgroundColor(viewColor);
-        scroll.setBackgroundColor(viewColor);
     }
 }
